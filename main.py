@@ -5,15 +5,18 @@ from fastapi.responses import HTMLResponse, FileResponse
 
 app = FastAPI()
 
+DIST_SRC = "reportix-vue/dist/"
+
+
 
 @app.get("/", response_class=FileResponse)
 @app.get("/index.html", response_class=FileResponse)
 def read_root():
-    return "client/index.html"
+    return DIST_SRC+"index.html"
 
-@app.get("/static/{filename}", response_class=FileResponse)
-def read_static_file(filename: str):
-    return "client/"+filename
+@app.get("/static/{file_path:path}", response_class=FileResponse)
+def read_static_file(file_path: str):
+    return DIST_SRC+file_path
 
 
 
