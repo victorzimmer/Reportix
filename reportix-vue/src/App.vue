@@ -1,29 +1,38 @@
 <script setup lang="ts">
-import DocumentSettings from './components/DocumentSettings.vue';
+import DocumentSettings from './components/DocumentSettings.vue'
+import DocumentEditor from './components/DocumentEditor.vue'
+import DocumentPDFPreview from './components/DocumentPDFPreview.vue'
+// import HelloWorld from './components/HelloWorld.vue'
+// import TheWelcome from './components/TheWelcome.vue'
 </script>
 
 <template>
+  <div id="mainUI" class="h-screen w-screen flex flex-row">
+    <div class="basis-3/5 flex flex-col">
+      <div class="basis-1/3 bg-red-100">
+        <DocumentSettings />
+      </div>
+      <div class="basis-2/3 bg-blue-100">
+        <DocumentEditor />
+      </div>
+    </div>
+    <div class="basis-2/5 bg-green-100">
+      <DocumentPDFPreview />
+    </div>
+  </div>
+
   <!-- <header>
+    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
     <h1 class="text-3xl font-bold underline">Hello world!</h1>
     <button class="btn btn-primary">Button</button>
   </header> -->
 
   <main>
-    <div>
-      <div>
-        <DocumentSettings/>
-        <Editor/>
-      </div>
-      <div>
-        <PDF />
-      </div>
-    </div>
-  </main>
-
+    <TheWelcome />
+  </main> 
 </template>
 
-<!-- 
-<style scoped>
+<!-- <style scoped>
 header {
   line-height: 1.5;
 }
