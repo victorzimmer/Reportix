@@ -1,1 +1,2 @@
-fastapi
+fastapi == 0.111.0
+ollama == 0.2.0
