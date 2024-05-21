@@ -18,6 +18,11 @@ def read_root():
 def read_static_file(file_path: str):
     return DIST_SRC+file_path
 
+
+@app.get("/static/{file_path:path}", response_class=FileResponse)
+def read_static_file(file_path: str):
+    return DIST_SRC+file_path
+
 @app.get("/textfield/{field_id}", response_class=HTMLResponse)
 def read_item(field_id: str):
     return {"item_id": field_id}
