@@ -1,23 +1,28 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import DocumentSettings from './components/DocumentSettings.vue';
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <!-- <header>
     <h1 class="text-3xl font-bold underline">Hello world!</h1>
     <button class="btn btn-primary">Button</button>
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+  </header> -->
 
   <main>
-    <TheWelcome />
+    <div>
+      <div>
+        <DocumentSettings/>
+        <Editor/>
+      </div>
+      <div>
+        <PDF />
+      </div>
+    </div>
   </main>
+
 </template>
 
+<!-- 
 <style scoped>
 header {
   line-height: 1.5;
@@ -45,4 +50,4 @@ header {
     flex-wrap: wrap;
   }
 }
-</style>
+</style> -->
