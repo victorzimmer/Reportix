@@ -1,8 +1,13 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TextFieldEditor from './editor/TextFieldEditor.vue'
+</script>
 
 <template>
   <div class="documentEditor">
-    <h1 class="green">Document editor</h1>
-    <h3>This area will contain editor.</h3>
+    <TextFieldEditor textFieldName="Introduction" />
+    <TextFieldEditor textFieldName="Methods" />
+    <TextFieldEditor textFieldName="Results" />
+    <TextFieldEditor textFieldName="Discussion" />
+    <TextFieldEditor textFieldName="Conclusion" />
   </div>
 </template>
