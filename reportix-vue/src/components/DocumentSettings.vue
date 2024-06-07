@@ -8,7 +8,7 @@ const availableTemplates = ['Default', 'Formal', 'Weird']
 </script>
 
 <template>
-  <div class="documentSettings flex flex-row h-fit mb-3">
+  <div class="documentSettings flex flex-row h-fit mb-3 mr-3">
     <div class="basis-1/2 flex flex-col pl-4 pt-4">
       <div>
         <TextSetting settingName="Author" placeholderText="William Shakespare" />

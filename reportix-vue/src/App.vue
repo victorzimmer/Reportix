@@ -12,7 +12,7 @@ import DocumentPDFPreview from './components/DocumentPDFPreview.vue'
       <div class="basis-1/3 bg-red-100">
         <DocumentSettings />
       </div>
-      <div class="basis-2/3 bg-blue-100">
+      <div class="basis-2/3 bg-blue-100 overflow-scroll max-h-full">
         <DocumentEditor />
       </div>
     </div>
