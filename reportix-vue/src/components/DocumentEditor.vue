@@ -11,3 +11,20 @@ import TextFieldEditor from './editor/TextFieldEditor.vue'
     <TextFieldEditor textFieldName="Conclusion" />
   </div>
 </template>
+
+<style scoped>
+.documentEditor {
+  text-align: center;
+}
+
+.align-center {
+  display: contents;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-field-container {
+  margin: 10px 0;
+}
+</style>

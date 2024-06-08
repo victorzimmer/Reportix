@@ -25,14 +25,11 @@ import DocumentPDFPreview from './components/DocumentPDFPreview.vue'
     <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
     <h1 class="text-3xl font-bold underline">Hello world!</h1>
     <button class="btn btn-primary">Button</button>
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+  </header> -->
 
   <main>
     <TheWelcome />
-  </main> -->
+  </main> 
 </template>
 
 <!-- <style scoped>
