@@ -15,11 +15,19 @@ async function reloadPDF() {
   }
 }
 
+async function compilePDF() {
+  let response = await fetch('/report/compile')
+  let loadedRandId = await response.json()
+}
+
 setInterval(reloadPDF, 5000)
 </script>
 
 <template>
   <div class="documentPDFPreview">
     <iframe id="pdfframe" class="w-full h-screen" src="/pdf/report.pdf"></iframe>
+    <div class="fixed top-1 right-1">
+      <button class="btn" @click="compilePDF()">Compile PDF</button>
+    </div>
   </div>
 </template>
