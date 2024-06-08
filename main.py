@@ -29,6 +29,9 @@ documentTitle = ""
 documentSubtitle = ""
 documentDate = ""
 
+textfields = {"introduction": "", "methods": "", "results": "", "discussion": "", "conclusion": ""}
+
+
 pdf_compile_randid = 0
 
 
@@ -199,6 +202,28 @@ def set_selected_template(templateSelection: TemplateSelection):
         print("Attempt to select template that is not available: ", templateSelection.templateName)
         raise HTTPException(424)
 
+
+##############
+# Textfields #
+##############
+@app.get("/textfields/{field_name}", response_class=JSONResponse)
+def get_textfield_content(field_name: str):
+    if textfields[field_name]:
+        return textfields[field_name]
+    return ""
+
+class TextfieldUpdate(BaseModel):
+    content: str
+
+@app.post("/textfields/{field_name}", response_class=JSONResponse)
+def set_textfield_content(field_name: str, textfieldUpdate: TextfieldUpdate):
+    textfields[field_name] = textfieldUpdate.content
+    return True
+
+
+
+
+
 ############
 # Code SRC #
 ############
@@ -246,23 +271,32 @@ def get_last_randid_pdf():
 
 @app.get("/report/compile", response_class=JSONResponse)
 def compile_pdf():
-    latexFile = open(TEMPLATE_SRC + selectedTemplate + ".tex", "r")
-    latexString = latexFile.read()
-    latexFile.close()
+    if selectedTemplate:
+        latexFile = open(TEMPLATE_SRC + selectedTemplate + ".tex", "r")
+        latexString = latexFile.read()
+        latexFile.close()
 
-    pdfBytes = build_pdf(latexString)
 
-    # print(bytes(pdfBytes)[:10])
+        if documentTitle:
+            latexString = latexString.replace("&&TITLE&&", documentTitle)
+        else:
+            latexString = latexString.replace("&&TITLE&&", "Title")
 
-    pdfFile = open(PDF_SRC + "report.pdf", "wb")
-    pdfFile.write(bytes(pdfBytes))
-    pdfFile.close()
 
-    global pdf_compile_randid
-    pdf_compile_randid = randrange(100000000)
-    print("New PDF RandID: ", pdf_compile_randid)
+        pdfBytes = build_pdf(latexString)
 
-    return True
+        # print(bytes(pdfBytes)[:10])
+
+        pdfFile = open(PDF_SRC + "report.pdf", "wb")
+        pdfFile.write(bytes(pdfBytes))
+        pdfFile.close()
+
+        global pdf_compile_randid
+        pdf_compile_randid = randrange(100000000)
+        print("New PDF RandID: ", pdf_compile_randid)
+
+        return True
+    return False
 
 
 
