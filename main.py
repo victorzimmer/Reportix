@@ -5,11 +5,13 @@ from fastapi.responses import HTMLResponse, FileResponse
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
 
+from random import randrange
 import os
 import shutil
 from pathlib import Path
 
 import ollama
+from latex import build_pdf
 
 app = FastAPI()
 
@@ -26,6 +28,8 @@ author = ""
 documentTitle = ""
 documentSubtitle = ""
 documentDate = ""
+
+pdf_compile_randid = 0
 
 
 Path("./"+CODE_SRC).mkdir(parents=True, exist_ok=True)
@@ -229,6 +233,35 @@ def upload_file(fileUpload: FileUpload):
 @app.get("/code_src/done", response_class=JSONResponse)
 def process_code_src():
     print("Done uploading files!")
+    return True
+
+
+###############
+# Compile PDF #
+###############
+@app.get("/report/compile_randid", response_class=JSONResponse)
+def get_last_randid_pdf():
+    print("Returning PDF RandID: ", pdf_compile_randid)
+    return pdf_compile_randid
+
+@app.get("/report/compile", response_class=JSONResponse)
+def compile_pdf():
+    latexFile = open(TEMPLATE_SRC + selectedTemplate + ".tex", "r")
+    latexString = latexFile.read()
+    latexFile.close()
+
+    pdfBytes = build_pdf(latexString)
+
+    # print(bytes(pdfBytes)[:10])
+
+    pdfFile = open(PDF_SRC + "report.pdf", "wb")
+    pdfFile.write(bytes(pdfBytes))
+    pdfFile.close()
+
+    global pdf_compile_randid
+    pdf_compile_randid = randrange(100000000)
+    print("New PDF RandID: ", pdf_compile_randid)
+
     return True
 
 
