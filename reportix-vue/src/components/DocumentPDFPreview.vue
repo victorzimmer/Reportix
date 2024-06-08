@@ -20,6 +20,6 @@ setInterval(reloadPDF, 5000)
 
 <template>
   <div class="documentPDFPreview">
-    <iframe id="pdfframe" class="w-full h-screen" src="/pdf/test.pdf"></iframe>
+    <iframe id="pdfframe" class="w-full h-screen" src="/pdf/report.pdf"></iframe>
   </div>
 </template>
