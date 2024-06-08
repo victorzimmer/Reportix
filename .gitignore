@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 .DS_Store
 /code_src
+pdf/report.pdf

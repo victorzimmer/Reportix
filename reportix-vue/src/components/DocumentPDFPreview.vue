@@ -18,6 +18,8 @@ async function reloadPDF() {
 async function compilePDF() {
   let response = await fetch('/report/compile')
   let loadedRandId = await response.json()
+
+  reloadPDF()
 }
 
 setInterval(reloadPDF, 5000)
