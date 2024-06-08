@@ -14,13 +14,13 @@ Return the ASCII folder structure of important files you create with PATH.
 Return also the paths split by a comma.
 
 Correct Return Structure:
-./app/
-    ./app/_.html
-    ./app/src/
-        ./app/src/_.jsx
-        ./app/src/_.jsx
+/app/
+    /app/_.html
+    /app/src/
+        /app/src/_.jsx
+        /app/src/_.jsx
         
-[./app/_.html, ./app/src/_.jsx, ./app/src/_.jsx]
+[/app/_.html, /app/src/_.jsx, /app/src/_.jsx]
 
 Do not output any other information or text other than the ASCII folder structure.
 """
