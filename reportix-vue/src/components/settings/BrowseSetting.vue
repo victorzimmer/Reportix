@@ -1,7 +1,24 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   settingName: string
+  // fileList?: any[]
 }>()
+
+const emit = defineEmits(['update:selection'])
+
+function selectionChanged() {}
+
+// const internalSelectionValue = computed({
+//   get(): any {
+//     return props.selection
+//   },
+//   set(newSelection: string): any {
+//     console.log('Updated selection: ', newSelection)
+//     return emit('update:selection', newSelection)
+//   }
+// })
 </script>
 
 <template>
@@ -12,5 +29,6 @@ defineProps<{
     label="browse"
     webkitdirectory
     directory
+    v-on:change="selectionChanged"
   />
 </template>
