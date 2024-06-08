@@ -5,6 +5,8 @@ import BrowseSetting from './settings/BrowseSetting.vue'
 import DropdownSetting from './settings/DropdownSetting.vue'
 import TextSetting from './settings/TextSetting.vue'
 
+const documentTitle = ref('')
+const documentSubtitle = ref('')
 const author = ref('')
 const documentDate = ref('')
 const availableModels = ref(['TestModel 1', 'TestModel 2'])
@@ -15,11 +17,53 @@ const selectedTemplate = ref('')
 defineExpose({
   author,
   documentDate,
+  documentTitle,
+  documentSubtitle,
   availableModels,
   selectedModel,
   availableTemplates,
   selectedTemplate
 })
+
+/*
+  Title
+*/
+async function loadTitle() {
+  const title_response = await fetch('/settings/title')
+  var loadedTitle = await title_response.json()
+  console.log('Loaded title: ', loadedTitle, documentTitle)
+  documentTitle.value = loadedTitle
+}
+
+async function updateTitle() {
+  const response = await fetch('/settings/title', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: documentTitle.value })
+  })
+}
+
+watch(documentTitle, updateTitle)
+
+/*
+  Subtitle
+*/
+async function loadSubtitle() {
+  const subtitle_response = await fetch('/settings/subtitle')
+  var loadedSubtitle = await subtitle_response.json()
+  console.log('Loaded subtitle: ', loadedSubtitle, documentSubtitle)
+  documentSubtitle.value = loadedSubtitle
+}
+
+async function updateSubtitle() {
+  const response = await fetch('/settings/subtitle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subtitle: documentSubtitle.value })
+  })
+}
+
+watch(documentSubtitle, updateSubtitle)
 
 /*
   Author
@@ -123,6 +167,8 @@ watch(selectedTemplate, updateSelectedTemplate)
 const vLoadSettings = {
   beforeMount: (el: any) => {
     console.log('Loading settings from backend...')
+    loadTitle()
+    loadSubtitle()
     loadAuthor()
     loadDocumentDate()
     loadModelData()
@@ -139,13 +185,31 @@ const vLoadSettings = {
     <div class="basis-1/2 flex flex-col pl-4 pt-4">
       <div>
         <TextSetting
+          settingName="Title"
+          placeholderText="Romeo & Juliet"
+          v-model:content="documentTitle"
+        />
+      </div>
+      <div>
+        <TextSetting
+          settingName="Subtitle"
+          placeholderText="A rigorous inquiry of feudes"
+          v-model:content="documentSubtitle"
+        />
+      </div>
+      <div>
+        <TextSetting
           settingName="Author"
           placeholderText="William Shakespare"
           v-model:content="author"
         />
       </div>
       <div>
-        <TextSetting settingName="Date" v-model:content="documentDate" />
+        <TextSetting
+          settingName="Date"
+          v-model:content="documentDate"
+          placeholderText="Spring 1597"
+        />
       </div>
     </div>
     <div class="basis-1/2 flex flex-col pt-4">

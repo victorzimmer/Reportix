@@ -15,6 +15,8 @@ selectedModel = ""
 availableTemplates = ["Formal", "Simple", "Fun"]
 selectedTemplate = None
 author = ""
+documentTitle = ""
+documentSubtitle = ""
 documentDate = ""
 
 
@@ -40,6 +42,43 @@ def read_static_file(file_path: str):
 @app.get("/textfield/{field_id}", response_class=HTMLResponse)
 def read_item(field_id: str):
     return {"item_id": field_id}
+
+
+############
+#  Title   #
+############
+@app.get("/settings/title", response_class=JSONResponse)
+def get_title():
+    return documentTitle
+
+class TitleUpdate(BaseModel):
+    title: str
+
+@app.post("/settings/title", response_class=JSONResponse)
+def set_title(titleUpdate: TitleUpdate):
+    global documentTitle
+    documentTitle = titleUpdate.title
+    print("Updated title", documentTitle)
+    return documentTitle
+
+
+
+############
+# Subtitle #
+############
+@app.get("/settings/subtitle", response_class=JSONResponse)
+def get_subtitle():
+    return documentSubtitle
+
+class SubtitleUpdate(BaseModel):
+    subtitle: str
+
+@app.post("/settings/subtitle", response_class=JSONResponse)
+def set_subtitle(subtitleUpdate: SubtitleUpdate):
+    global documentSubtitle
+    documentSubtitle = subtitleUpdate.subtitle
+    print("Updated subtitle", documentSubtitle)
+    return documentSubtitle
 
 
 ############
