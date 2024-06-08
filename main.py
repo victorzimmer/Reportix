@@ -9,13 +9,15 @@ import os
 import shutil
 from pathlib import Path
 
+import ollama
+
 app = FastAPI()
 
 DIST_SRC = "reportix-vue/dist/"
 PDF_SRC = "pdf/"
 CODE_SRC = "code_src/"
 
-availableModels = ["Phi", "Llama 2", "Llama 3"]
+availableModels = []
 selectedModel = ""
 availableTemplates = ["Formal", "Simple", "Fun"]
 selectedTemplate = None
@@ -24,11 +26,13 @@ documentTitle = ""
 documentSubtitle = ""
 documentDate = ""
 
-# try:
-#     os.mkdir("./"+CODE_SRC)
-# except FileExistsError:
-#     pass
+
 Path("./"+CODE_SRC).mkdir(parents=True, exist_ok=True)
+
+ollamaModels = ollama.list()["models"]
+for model in ollamaModels:
+    availableModels.append(model["name"])
+
 
 
 @app.get("/", response_class=FileResponse)
@@ -132,6 +136,10 @@ def set_date(dateUpdate: DateUpdate):
 ############
 @app.get("/settings/available_models", response_class=JSONResponse)
 def get_available_models():
+    availableModels = []
+    ollamaModels = ollama.list()["models"]
+    for model in ollamaModels:
+        availableModels.append(model["name"])
     return availableModels
 
 @app.get("/settings/selected_model", response_class=JSONResponse)
