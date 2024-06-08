@@ -5,10 +5,15 @@ from fastapi.responses import HTMLResponse, FileResponse
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
 
+import os
+import shutil
+from pathlib import Path
+
 app = FastAPI()
 
 DIST_SRC = "reportix-vue/dist/"
 PDF_SRC = "pdf/"
+CODE_SRC = "code_src/"
 
 availableModels = ["Phi", "Llama 2", "Llama 3"]
 selectedModel = ""
@@ -18,6 +23,12 @@ author = ""
 documentTitle = ""
 documentSubtitle = ""
 documentDate = ""
+
+# try:
+#     os.mkdir("./"+CODE_SRC)
+# except FileExistsError:
+#     pass
+Path("./"+CODE_SRC).mkdir(parents=True, exist_ok=True)
 
 
 @app.get("/", response_class=FileResponse)
@@ -165,6 +176,43 @@ def set_selected_template(templateSelection: TemplateSelection):
     else:
         print("Attempt to select template that is not available: ", templateSelection.templateName)
         raise HTTPException(424)
+
+############
+# Code SRC #
+############
+@app.get("/code_src/reset", response_class=JSONResponse)
+def reset_code_src():
+    with os.scandir(CODE_SRC) as entries:
+        for entry in entries:
+            if entry.is_dir() and not entry.is_symlink():
+                shutil.rmtree(entry.path)
+            else:
+                os.remove(entry.path)
+    return True
+
+class FileUpload(BaseModel):
+    fileName: str
+    relativePath: str
+    fileText: str
+
+@app.post("/code_src/upload", response_class=JSONResponse)
+def upload_file(fileUpload: FileUpload):
+    # try:
+    #     os.mkdir("./"+CODE_SRC+str.join("/", fileUpload.relativePath.split("/")[0:-1]))
+    # except FileExistsError:
+    #     pass
+    Path("./"+CODE_SRC+str.join("/", fileUpload.relativePath.split("/")[0:-1])).mkdir(parents=True, exist_ok=True)
+
+    f = open(CODE_SRC + fileUpload.relativePath, "w")
+    f.write(fileUpload.relativePath)
+    f.close()
+    print("Recieved "+fileUpload.relativePath)
+
+@app.get("/code_src/done", response_class=JSONResponse)
+def process_code_src():
+    print("Done uploading files!")
+    return True
+
 
 
 # @app.update("/textfield/{field_id}", response_class=HTMLResponse)

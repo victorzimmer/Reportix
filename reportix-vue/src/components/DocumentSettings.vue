@@ -79,7 +79,15 @@ defineExpose({
         />
       </div>
       <div>
-        <BrowseSetting settingName="Code Directory" />
+        <BrowseSetting
+          settingName="Code Directory"
+          endpointReset="/code_src/reset"
+          endpointFiles="/code_src/upload"
+          endpointDone="/code_src/done"
+          propertyNameFile="fileName"
+          propertyNamePath="relativePath"
+          propertyNameContent="fileText"
+        />
       </div>
       <div>
         <DropdownSetting
