@@ -1,25 +1,14 @@
 <script setup lang="ts">
-import TextFieldComponent from './TextFieldComponent.vue';
+import TextFieldEditor from './editor/TextFieldEditor.vue'
 </script>
 
 <template>
   <div class="documentEditor">
-    <h1 class="green">Document editor</h1>
-    <h3>This area will contain editor.</h3>
-    <div class="align-center">
-      <div class="text-field-container">
-        <TextFieldComponent msg="Introduction"/>
-      </div>
-      <div class="text-field-container">
-        <TextFieldComponent msg="Method"/>
-      </div>
-      <div class="text-field-container">
-        <TextFieldComponent msg="Result"/>
-      </div>
-      <div class="text-field-container">
-        <TextFieldComponent msg="Discussion"/>
-      </div>
-    </div>
+    <TextFieldEditor textFieldName="Introduction" />
+    <TextFieldEditor textFieldName="Methods" />
+    <TextFieldEditor textFieldName="Results" />
+    <TextFieldEditor textFieldName="Discussion" />
+    <TextFieldEditor textFieldName="Conclusion" />
   </div>
 </template>
 
