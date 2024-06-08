@@ -5,13 +5,6 @@ import BrowseSetting from './settings/BrowseSetting.vue'
 import DropdownSetting from './settings/DropdownSetting.vue'
 import TextSetting from './settings/TextSetting.vue'
 
-// const response = await fetch('/settings/available_models')
-// console.log(response)
-// function loadSettings() {
-//   available_models_response = await fetch('/settings/available_models')
-//   availableModels = await available_models_response.json()
-// }
-
 const author = ref('')
 const documentDate = ref('')
 const availableModels = ref(['TestModel 1', 'TestModel 2'])
@@ -176,8 +169,5 @@ const vLoadSettings = {
         />
       </div>
     </div>
-
-    <!-- <h1 class="">Document settings</h1>
-    <h3>This area will contain settings TEST.</h3> -->
   </div>
 </template>
