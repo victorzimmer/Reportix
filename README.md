@@ -1,6 +1,6 @@
 # Reportix
 ## Project Description
-
+AI-powered web application which helps users write reports. The application uses pre-trained models to generate text live as the user types. The texts which the model generates is directional help to the user.
 
 ## Installation
 Clone the repository and navigate to the project directory:
