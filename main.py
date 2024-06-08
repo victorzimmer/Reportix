@@ -16,10 +16,11 @@ app = FastAPI()
 DIST_SRC = "reportix-vue/dist/"
 PDF_SRC = "pdf/"
 CODE_SRC = "code_src/"
+TEMPLATE_SRC = "latex-templates/"
 
 availableModels = []
 selectedModel = ""
-availableTemplates = ["Formal", "Simple", "Fun"]
+availableTemplates = []
 selectedTemplate = None
 author = ""
 documentTitle = ""
@@ -29,11 +30,22 @@ documentDate = ""
 
 Path("./"+CODE_SRC).mkdir(parents=True, exist_ok=True)
 
-ollamaModels = ollama.list()["models"]
-for model in ollamaModels:
-    availableModels.append(model["name"])
+def loadAvailableModels():
+    global availableModels
+    availableModels = []
+    ollamaModels = ollama.list()["models"]
+    for model in ollamaModels:
+        availableModels.append(model["name"])
 
+def loadAvailableTemplates():
+    global availableTemplates
+    availableTemplates = []
+    templateFiles = [f for f in Path().glob("./"+TEMPLATE_SRC+"*.tex")]
+    for templateFile in templateFiles:
+        availableTemplates.append(str(templateFile).split("/")[-1][0:-4])
 
+loadAvailableModels()
+loadAvailableTemplates()
 
 @app.get("/", response_class=FileResponse)
 @app.get("/index.html", response_class=FileResponse)
@@ -136,10 +148,7 @@ def set_date(dateUpdate: DateUpdate):
 ############
 @app.get("/settings/available_models", response_class=JSONResponse)
 def get_available_models():
-    availableModels = []
-    ollamaModels = ollama.list()["models"]
-    for model in ollamaModels:
-        availableModels.append(model["name"])
+    loadAvailableModels()
     return availableModels
 
 @app.get("/settings/selected_model", response_class=JSONResponse)
@@ -165,6 +174,7 @@ def set_selected_model(modelSelection: ModelSelection):
 ############
 @app.get("/settings/available_templates", response_class=JSONResponse)
 def get_available_templates():
+    loadAvailableTemplates()
     return availableTemplates
 
 @app.get("/settings/selected_template", response_class=JSONResponse)
