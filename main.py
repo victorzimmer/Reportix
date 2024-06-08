@@ -278,9 +278,30 @@ def compile_pdf():
 
 
         if documentTitle:
-            latexString = latexString.replace("&&TITLE&&", documentTitle)
+            latexString = latexString.replace("$Reportix:Title$", documentTitle)
         else:
-            latexString = latexString.replace("&&TITLE&&", "Title")
+            latexString = latexString.replace("$Reportix:Title$", "Title")
+
+        if documentSubtitle:
+            latexString = latexString.replace("$Reportix:Subtitle$", documentSubtitle)
+        else:
+            latexString = latexString.replace("$Reportix:Subtitle$", "Subtitle")
+
+        if author:
+            latexString = latexString.replace("$Reportix:Author$", author)
+        else:
+            latexString = latexString.replace("$Reportix:Author$", "Author")
+
+        if documentDate:
+            latexString = latexString.replace("$Reportix:Date$", documentDate)
+        else:
+            latexString = latexString.replace("$Reportix:Date$", "Date")
+
+        for sectionName in textfields:
+            if textfields[sectionName]:
+                latexString = latexString.replace("$Reportix:Textfield-"+sectionName+"$", textfields[sectionName])
+            else:
+                latexString = latexString.replace("$Reportix:Textfield-"+sectionName+"$", "Content text")
 
 
         pdfBytes = build_pdf(latexString)
