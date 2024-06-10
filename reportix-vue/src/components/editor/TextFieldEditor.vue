@@ -32,7 +32,7 @@ async function updateContent() {
 
 watch(internalContentValue, updateContent)
 
-const internalSuggestionsValue = ref('Suggestions not loaded')
+const internalSuggestionsValue = ref(['Suggestions not loaded'])
 
 async function loadSuggestions() {
   if (props.endpointSuggestions) {
