@@ -6,8 +6,7 @@ from tiktoken.load import load_tiktoken_bpe
 # need to feed this with the uploaded project from UI
 def read_folder(directory:str) -> str:
     """
-    Traverse project folder and pick important files.
-    Compressing the project into fewer files
+    Traverse project folder and return the structure of the project folder
     """
     folder_structure = []
 
@@ -22,13 +21,14 @@ def read_folder(directory:str) -> str:
     return "\n".join(folder_structure)
 
 
-def model_read_files(project_directory:str) -> str:
+def find_paths(directory:str) -> list[str]:
     """
-    Read each file which the llama3 deem important through read_folder function
+    
     """
+
     stack = []
     paths = []
-    for char in project_directory:
+    for char in directory:
         if "[" in stack and char != "]":
             paths.append(char)
 
@@ -39,16 +39,25 @@ def model_read_files(project_directory:str) -> str:
 
     out = "".join(paths)
     elements = out.strip("[]").split(',')
-    path_list = [element.strip() for element in elements]
+
+    return [element.strip() for element in elements]
 
 
+
+def model_read_files(path_list:list[str], original_project_structure:str) -> str:
     # chunking the files and reading these in chunks
     chunk_size = 0 
     chunk = ""
     max_context = 8192
-    tokenizer = tiktoken.get_encoding("cl100k_base")  # used on default in llama 3 
+    tokenizer = tiktoken.get_encoding("cl100k_base")
     chunk_responses = []
     project_directory = "example_project/"
+
+    if path_list == []:
+        # model resp
+        while path_list == []:
+            model_response_paths = model_response(original_project_structure, project_system_template)
+            path_list = find_paths(model_response_paths["message"]["content"])
     
     for idx, path in enumerate(path_list):
         with open(project_directory + path, "r") as file:
@@ -76,22 +85,3 @@ def model_read_files(project_directory:str) -> str:
                 chunk_responses.append(chunk_digest["message"]["content"])
 
     return path_list, chunk_responses
-    
-
-
-if __name__ == "__main__":
-    project_directory = "example_project/"
-
-
-    project_structure = read_folder(project_directory)
-    model_resp_mdl_strc = model_response(project_structure, project_system_template)
-    print(model_resp_mdl_strc['message']['content'])
-    paths = model_read_files(model_resp_mdl_strc['message']['content'])
-    
-    print(paths[0])
-    print("\n")
-    print(paths[1])
-
-
-
-    
