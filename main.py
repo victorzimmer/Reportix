@@ -38,6 +38,7 @@ documentDate = ""
 
 textfields = {"introduction": "", "methods": "", "results": "", "discussion": "", "conclusion": ""}
 textfieldsChangedSinceLastGeneration = False
+codeChangedSinceLastAnalysis = False
 textfield_suggestions = {"introduction": ["No suggestions yet"], "methods":["No suggestions yet"], "results": ["No suggestions yet"], "discussion": ["No suggestions yet"], "conclusion": ["No suggestions yet"]}
 
 
@@ -277,6 +278,7 @@ def upload_file(fileUpload: FileUpload):
 
 @app.get("/code_src/done", response_class=JSONResponse)
 def process_code_src():
+    codeChangedSinceLastAnalysis = True
     print("Done uploading files!")
     return True
 
@@ -344,12 +346,17 @@ def compile_pdf():
 #################
 # AI Generation #
 #################
+def runAICodeAnalysis():
+    codeChangedSinceLastAnalysis = False
+
 def runAIGeneration():
     textfieldsChangedSinceLastGeneration = False
 
 
 def pollAIShouldGenerate():
     print("Polling if AI should generate")
+    if codeChangedSinceLastAnalysis and selectedModel:
+        runAICodeAnalysis()
     if textfieldsChangedSinceLastGeneration and selectedModel:
         runAIGeneration()
 
