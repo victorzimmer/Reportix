@@ -38,27 +38,3 @@ def reportix_model( text: str,
     response = model_response(model_input, system_template)
     
     return response["message"]["content"]
-
-
-
-
-if __name__ == "__main__":
-    project_directory = "example_project/"
-
-    project_structure = read_folder(project_directory)
-    model_resp_mdl_strc = model_response(project_structure, project_system_template)
-    print(model_resp_mdl_strc['message']['content'])
-    paths = model_read_files(model_resp_mdl_strc['message']['content'])
-    
-    print(paths[0])
-    print("\n")
-    print(paths[1])
-
-    text = "The quick brown fox jumps over the lazy dog"
-    previous_suggestion = ""
-    project_summary = paths[1]
-
-    test = reportix_model(text, previous_suggestion, project_summary, correction_system_template, section="introduction")
-    
-    print(test)
-
