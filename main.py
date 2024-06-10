@@ -36,6 +36,7 @@ documentSubtitle = ""
 documentDate = ""
 
 textfields = {"introduction": "", "methods": "", "results": "", "discussion": "", "conclusion": ""}
+textfield_suggestions = {"introduction": ["No suggestions yet"], "methods":["No suggestions yet"], "results": ["No suggestions yet"], "discussion": ["No suggestions yet"], "conclusion": ["No suggestions yet"]}
 
 
 pdf_compile_randid = 0
@@ -226,6 +227,16 @@ def set_textfield_content(field_name: str, textfieldUpdate: TextfieldUpdate):
     textfields[field_name] = textfieldUpdate.content
     return True
 
+
+
+#########################
+# Textfield suggestions #
+#########################
+@app.get("/textfield_suggestions/{field_name}", response_class=JSONResponse)
+def get_textfield_content(field_name: str):
+    if textfield_suggestions[field_name]:
+        return textfield_suggestions[field_name]
+    return ""
 
 
 

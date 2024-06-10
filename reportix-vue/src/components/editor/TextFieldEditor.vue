@@ -4,6 +4,7 @@ import { ref, watch } from 'vue'
 const props = defineProps<{
   textFieldName: string
   endpoint?: string
+  endpointSuggestions?: string
   propertyName?: string
 }>()
 
@@ -31,12 +32,25 @@ async function updateContent() {
 
 watch(internalContentValue, updateContent)
 
+const internalSuggestionsValue = ref('Suggestions not loaded')
+
+async function loadSuggestions() {
+  if (props.endpointSuggestions) {
+    console.log('Loading suggestions for ' + props.textFieldName)
+    const response = await fetch(props.endpointSuggestions)
+    var loadedContent = await response.json()
+    internalSuggestionsValue.value = loadedContent
+  }
+}
+
 /*
   Load content
 */
 const vLoadContent = {
   beforeMount: (el: any) => {
     loadContent()
+    loadSuggestions()
+    setInterval(loadSuggestions, 5000)
   }
 }
 </script>
@@ -55,8 +69,10 @@ const vLoadContent = {
       </div>
     </div>
     <div class="textFieldSuggestions w-2/5 m-3 min-h-32">
-      <div class="grid card bg-base-300 rounded-box place-items-center h-full w-full">
-        Suggestions will go here
+      <div class="grid card bg-base-300 rounded-box place-items-start pl-8 pt-2 h-full w-full">
+        <ul class="list-disc">
+          <li v-for="suggestion in internalSuggestionsValue">{{ suggestion }}</li>
+        </ul>
       </div>
     </div>
   </div>
