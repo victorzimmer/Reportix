@@ -1,5 +1,5 @@
 import os
-from model_response import *
+from backend.model_response import *
 import tiktoken
 from tiktoken.load import load_tiktoken_bpe
 
@@ -18,12 +18,12 @@ def read_folder(directory:str) -> str:
         for file in files:
             folder_structure.append(f"{subindent}{file}")
 
-    return "\n".join(folder_structure)
+    return "\n".join(folder_structure[1:-1])
 
 
 def find_paths(directory:str) -> list[str]:
     """
-    
+
     """
 
     stack = []
@@ -45,19 +45,19 @@ def find_paths(directory:str) -> list[str]:
 
 def model_read_files(path_list:list[str], original_project_structure:str) -> str:
     # chunking the files and reading these in chunks
-    chunk_size = 0 
+    chunk_size = 0
     chunk = ""
     max_context = 8192
     tokenizer = tiktoken.get_encoding("cl100k_base")
     chunk_responses = []
-    project_directory = "../code_src/"
+    project_directory = "./code_src/"
 
     if path_list == []:
         # model resp
         while path_list == []:
             model_response_paths = model_response(original_project_structure, project_system_template)
             path_list = find_paths(model_response_paths["message"]["content"])
-    
+
     for idx, path in enumerate(path_list):
         with open(project_directory + path, "r") as file:
             content = project_directory + path+ ": " + file.read()
@@ -74,14 +74,13 @@ def model_read_files(path_list:list[str], original_project_structure:str) -> str
                 # reset chunk
                 chunk_size = 0
                 chunk = ""
-            
+
             else:
                 chunk += content
-            
+
             # no more files to read and chunk not full
             if idx == len(path_list) - 1:
                 chunk_digest = model_response(chunk, code_system_template)
                 chunk_responses.append(chunk_digest["message"]["content"])
 
     return path_list, chunk_responses
-
