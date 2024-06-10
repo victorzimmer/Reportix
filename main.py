@@ -358,7 +358,6 @@ def runAIGeneration():
 
 
 def pollAIShouldGenerate():
-    print("Polling if AI should generate")
     if codeChangedSinceLastAnalysis and selectedModel:
         runAICodeAnalysis()
     if textfieldsChangedSinceLastGeneration and selectedModel:
