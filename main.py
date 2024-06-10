@@ -5,35 +5,64 @@ from fastapi.responses import HTMLResponse, FileResponse
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
 
+from random import randrange
 import os
+import sys
+from setInterval import setInterval
 import shutil
 from pathlib import Path
-
 import ollama
+from latex import build_pdf
+
+try:
+    ollama.list()
+except:
+    print("Ollama not found. Exiting.")
+    sys.exit(1)
 
 app = FastAPI()
 
 DIST_SRC = "reportix-vue/dist/"
 PDF_SRC = "pdf/"
 CODE_SRC = "code_src/"
+TEMPLATE_SRC = "latex-templates/"
 
 availableModels = []
 selectedModel = ""
-availableTemplates = ["Formal", "Simple", "Fun"]
+availableTemplates = []
 selectedTemplate = None
 author = ""
 documentTitle = ""
 documentSubtitle = ""
 documentDate = ""
 
+textfields = {"introduction": "", "methods": "", "results": "", "discussion": "", "conclusion": ""}
+textfieldsChangedSinceLastGeneration = False
+codeChangedSinceLastAnalysis = False
+textfield_suggestions = {"introduction": ["No suggestions yet"], "methods":["No suggestions yet"], "results": ["No suggestions yet"], "discussion": ["No suggestions yet"], "conclusion": ["No suggestions yet"]}
+
+
+pdf_compile_randid = 0
+
 
 Path("./"+CODE_SRC).mkdir(parents=True, exist_ok=True)
 
-ollamaModels = ollama.list()["models"]
-for model in ollamaModels:
-    availableModels.append(model["name"])
+def loadAvailableModels():
+    global availableModels
+    availableModels = []
+    ollamaModels = ollama.list()["models"]
+    for model in ollamaModels:
+        availableModels.append(model["name"])
 
+def loadAvailableTemplates():
+    global availableTemplates
+    availableTemplates = []
+    templateFiles = [f for f in Path().glob("./"+TEMPLATE_SRC+"*.tex")]
+    for templateFile in templateFiles:
+        availableTemplates.append(str(templateFile).split("/")[-1][0:-4])
 
+loadAvailableModels()
+loadAvailableTemplates()
 
 @app.get("/", response_class=FileResponse)
 @app.get("/index.html", response_class=FileResponse)
@@ -136,10 +165,7 @@ def set_date(dateUpdate: DateUpdate):
 ############
 @app.get("/settings/available_models", response_class=JSONResponse)
 def get_available_models():
-    availableModels = []
-    ollamaModels = ollama.list()["models"]
-    for model in ollamaModels:
-        availableModels.append(model["name"])
+    loadAvailableModels()
     return availableModels
 
 @app.get("/settings/selected_model", response_class=JSONResponse)
@@ -165,6 +191,7 @@ def set_selected_model(modelSelection: ModelSelection):
 ############
 @app.get("/settings/available_templates", response_class=JSONResponse)
 def get_available_templates():
+    loadAvailableTemplates()
     return availableTemplates
 
 @app.get("/settings/selected_template", response_class=JSONResponse)
@@ -184,6 +211,39 @@ def set_selected_template(templateSelection: TemplateSelection):
     else:
         print("Attempt to select template that is not available: ", templateSelection.templateName)
         raise HTTPException(424)
+
+
+##############
+# Textfields #
+##############
+@app.get("/textfields/{field_name}", response_class=JSONResponse)
+def get_textfield_content(field_name: str):
+    if textfields[field_name]:
+        return textfields[field_name]
+    return ""
+
+class TextfieldUpdate(BaseModel):
+    content: str
+
+@app.post("/textfields/{field_name}", response_class=JSONResponse)
+def set_textfield_content(field_name: str, textfieldUpdate: TextfieldUpdate):
+    textfields[field_name] = textfieldUpdate.content
+    textfieldsChangedSinceLastGeneration = True
+    return True
+
+
+
+#########################
+# Textfield suggestions #
+#########################
+@app.get("/textfield_suggestions/{field_name}", response_class=JSONResponse)
+def get_textfield_content(field_name: str):
+    if textfield_suggestions[field_name]:
+        return textfield_suggestions[field_name]
+    return ""
+
+
+
 
 ############
 # Code SRC #
@@ -218,9 +278,109 @@ def upload_file(fileUpload: FileUpload):
 
 @app.get("/code_src/done", response_class=JSONResponse)
 def process_code_src():
+    codeChangedSinceLastAnalysis = True
     print("Done uploading files!")
     return True
 
+
+###############
+# Compile PDF #
+###############
+@app.get("/report/compile_randid", response_class=JSONResponse)
+def get_last_randid_pdf():
+    print("Returning PDF RandID: ", pdf_compile_randid)
+    return pdf_compile_randid
+
+@app.get("/report/compile", response_class=JSONResponse)
+def compile_pdf():
+    if selectedTemplate:
+        latexFile = open(TEMPLATE_SRC + selectedTemplate + ".tex", "r")
+        latexString = latexFile.read()
+        latexFile.close()
+
+
+        if documentTitle:
+            latexString = latexString.replace("$Reportix:Title$", documentTitle)
+        else:
+            latexString = latexString.replace("$Reportix:Title$", "Title")
+
+        if documentSubtitle:
+            latexString = latexString.replace("$Reportix:Subtitle$", documentSubtitle)
+        else:
+            latexString = latexString.replace("$Reportix:Subtitle$", "Subtitle")
+
+        if author:
+            latexString = latexString.replace("$Reportix:Author$", author)
+        else:
+            latexString = latexString.replace("$Reportix:Author$", "Author")
+
+        if documentDate:
+            latexString = latexString.replace("$Reportix:Date$", documentDate)
+        else:
+            latexString = latexString.replace("$Reportix:Date$", "Date")
+
+        for sectionName in textfields:
+            if textfields[sectionName]:
+                latexString = latexString.replace("$Reportix:Textfield-"+sectionName+"$", textfields[sectionName])
+            else:
+                latexString = latexString.replace("$Reportix:Textfield-"+sectionName+"$", "Content text")
+
+
+        pdfBytes = build_pdf(latexString)
+
+        # print(bytes(pdfBytes)[:10])
+
+        pdfFile = open(PDF_SRC + "report.pdf", "wb")
+        pdfFile.write(bytes(pdfBytes))
+        pdfFile.close()
+
+        global pdf_compile_randid
+        pdf_compile_randid = randrange(100000000)
+        print("New PDF RandID: ", pdf_compile_randid)
+
+        return True
+    return False
+
+
+
+#################
+# AI Generation #
+#################
+# from backend.folder_digest import model_read_files
+
+AI_currentSummary = "No summary generated yet."
+
+def runAICodeAnalysis():
+    from backend.folder_digest import read_folder, find_paths, model_read_files
+    from backend.model_response import model_response
+    from backend.preprompts import project_system_template
+
+    codeChangedSinceLastAnalysis = False
+    project_structure = read_folder("../code_src/")
+    project_compressed = model_response(project_structure, project_system_template)
+    paths_to_files = find_paths(project_compressed)
+    summary = model_read_files(paths_to_files, project_structure)[1]
+    global AI_currentSummary
+    AI_currentSummary = summary
+
+def runAIGeneration():
+    from backend.text_helper import reportix_model
+    textfieldsChangedSinceLastGeneration = False
+    for sectionName in textfields:
+        return_string = reportix_model(section=sectionName, previous_suggestion=str(textfield_suggestions[sectionName]), project_summary=AI_currentSummary, text=textfields[sectionName])
+        print("AI wrote: ", return_string)
+        result_list = return_string.split("*")
+        textfield_suggestions[sectionName] = result_list
+
+
+def pollAIShouldGenerate():
+    if codeChangedSinceLastAnalysis and selectedModel:
+        runAICodeAnalysis()
+    if textfieldsChangedSinceLastGeneration and selectedModel:
+        runAIGeneration()
+
+
+setInterval(5, pollAIShouldGenerate)
 
 
 # @app.update("/textfield/{field_id}", response_class=HTMLResponse)
