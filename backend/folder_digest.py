@@ -43,7 +43,6 @@ def find_paths(directory:str) -> list[str]:
     return [element.strip() for element in elements]
 
 
-
 def model_read_files(path_list:list[str], original_project_structure:str) -> str:
     # chunking the files and reading these in chunks
     chunk_size = 0 
@@ -51,7 +50,7 @@ def model_read_files(path_list:list[str], original_project_structure:str) -> str
     max_context = 8192
     tokenizer = tiktoken.get_encoding("cl100k_base")
     chunk_responses = []
-    project_directory = "example_project/"
+    project_directory = "../code_src/"
 
     if path_list == []:
         # model resp
@@ -85,3 +84,4 @@ def model_read_files(path_list:list[str], original_project_structure:str) -> str
                 chunk_responses.append(chunk_digest["message"]["content"])
 
     return path_list, chunk_responses
+

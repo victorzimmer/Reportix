@@ -348,13 +348,29 @@ def compile_pdf():
 #################
 # from backend.folder_digest import model_read_files
 
+AI_currentSummary = "No summary generated yet."
+
 def runAICodeAnalysis():
+    from backend.folder_digest import read_folder, find_paths, model_read_files
+    from backend.model_response import model_response
+    from backend.preprompts import project_system_template
+
     codeChangedSinceLastAnalysis = False
-    # path_list, chunk_responses = model_read_files(CODE_SRC)
-    # print(path_list, chunk_responses)
+    project_structure = read_folder("../code_src/")
+    project_compressed = model_response(project_structure, project_system_template)
+    paths_to_files = find_paths(project_compressed)
+    summary = model_read_files(paths_to_files, project_structure)[1]
+    global AI_currentSummary
+    AI_currentSummary = summary
 
 def runAIGeneration():
+    from backend.text_helper import reportix_model
     textfieldsChangedSinceLastGeneration = False
+    for sectionName in textfields:
+        return_string = reportix_model(section=sectionName, previous_suggestion=str(textfield_suggestions[sectionName]), project_summary=AI_currentSummary, text=textfields[sectionName])
+        print("AI wrote: ", return_string)
+        result_list = return_string.split("*")
+        textfield_suggestions[sectionName] = result_list
 
 
 def pollAIShouldGenerate():
