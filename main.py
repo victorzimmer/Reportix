@@ -7,11 +7,17 @@ from pydantic import BaseModel
 
 from random import randrange
 import os
+import sys
 import shutil
 from pathlib import Path
-
 import ollama
 from latex import build_pdf
+
+try:
+    ollama.list()
+except:
+    print("Ollama not found. Exiting.")
+    sys.exit(1)
 
 app = FastAPI()
 
