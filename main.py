@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from random import randrange
 import os
 import sys
+from setInterval import setInterval
 import shutil
 from pathlib import Path
 import ollama
@@ -36,6 +37,7 @@ documentSubtitle = ""
 documentDate = ""
 
 textfields = {"introduction": "", "methods": "", "results": "", "discussion": "", "conclusion": ""}
+textfieldsChangedSinceLastGeneration = False
 textfield_suggestions = {"introduction": ["No suggestions yet"], "methods":["No suggestions yet"], "results": ["No suggestions yet"], "discussion": ["No suggestions yet"], "conclusion": ["No suggestions yet"]}
 
 
@@ -225,6 +227,7 @@ class TextfieldUpdate(BaseModel):
 @app.post("/textfields/{field_name}", response_class=JSONResponse)
 def set_textfield_content(field_name: str, textfieldUpdate: TextfieldUpdate):
     textfields[field_name] = textfieldUpdate.content
+    textfieldsChangedSinceLastGeneration = True
     return True
 
 
@@ -336,6 +339,22 @@ def compile_pdf():
         return True
     return False
 
+
+
+#################
+# AI Generation #
+#################
+def runAIGeneration():
+    textfieldsChangedSinceLastGeneration = False
+
+
+def pollAIShouldGenerate():
+    print("Polling if AI should generate")
+    if textfieldsChangedSinceLastGeneration and selectedModel:
+        runAIGeneration()
+
+
+setInterval(5, pollAIShouldGenerate)
 
 
 # @app.update("/textfield/{field_id}", response_class=HTMLResponse)
