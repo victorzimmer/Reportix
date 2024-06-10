@@ -346,8 +346,12 @@ def compile_pdf():
 #################
 # AI Generation #
 #################
+from backend.folder_digest import model_read_files
+
 def runAICodeAnalysis():
     codeChangedSinceLastAnalysis = False
+    # path_list, chunk_responses = model_read_files(CODE_SRC)
+    # print(path_list, chunk_responses)
 
 def runAIGeneration():
     textfieldsChangedSinceLastGeneration = False
