@@ -10,8 +10,6 @@ Install necessary packages using pip and npm:
 $ pip install -r requirements.txt
 $ npm install
 
-
-
 ## Usage
 
 ### Development
