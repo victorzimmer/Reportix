@@ -182,6 +182,7 @@ def set_selected_model(modelSelection: ModelSelection):
     if (modelSelection.modelName in availableModels):
         selectedModel = modelSelection.modelName
         print("Updated selected model", selectedModel)
+        textfieldsChangedSinceLastGeneration = True
         return selectedModel
     else:
         print("Attempt to select model that is not available: ", modelSelection.modelName)
@@ -363,22 +364,23 @@ def runAICodeAnalysis():
     global codeChangedSinceLastAnalysis
     codeChangedSinceLastAnalysis = False
 
-    # fileListIter = os.walk(CODE_SRC)
-    # fileList = []
-    # for filePathObj in fileListIter:
-    #     for fileName in filePathObj[2]:
-    #         fileList.append(filePathObj[0] + fileName)
+    fileListIter = os.walk(CODE_SRC)
+    fileList = []
+    for filePathObj in fileListIter:
+        for fileName in filePathObj[2]:
+            fileList.append(filePathObj[0] + fileName)
 
     # fileList = fileList[0:15]
 
+    preprompt = f"This is a list of files in the users project. You are to assist in writing a report with the title {documentTitle}, {documentSubtitle}. Please return a list of files you want to expect, one file per line. Do not format the list."
     # # prompt = file_id_template+read_folder(CODE_SRC)
-    # prompt = "\n".join(fileList)
-    # print("Prompt: ", prompt)
-    # modelOutput = ollama.generate(model=selectedModel, system=file_id_template, prompt=prompt)
-    # print("Output: ", modelOutput["response"])
+    prompt = "\n".join(fileList)
+    print("Prompt: ", prompt)
+    modelOutput = ollama.generate(model=selectedModel, system=file_id_template, prompt=prompt)
+    print("Output: ", modelOutput["response"])
 
-    # filesToInspect = modelOutput["response"].split("\n")[1:-1]
-    # print("Files to inspect: ",filesToInspect)
+    filesToInspect = modelOutput["response"].split("\n")[1:-1]
+    print("Files to inspect: ",filesToInspect)
 
     # for filePath in filesToInspect:
     #     try:
