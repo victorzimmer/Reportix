@@ -38,7 +38,7 @@ documentSubtitle = ""
 documentDate = ""
 
 textfields = {"introduction": "", "methods": "", "results": "", "discussion": "", "conclusion": ""}
-textfieldsChangedSinceLastGeneration = False
+textfieldsToGenerate = []
 codeChangedSinceLastAnalysis = False
 currentlyGeneratingTextfieldSuggestions = ""
 textfield_suggestions = {"introduction": ["No suggestions yet"], "methods":["No suggestions yet"], "results": ["No suggestions yet"], "discussion": ["No suggestions yet"], "conclusion": ["No suggestions yet"]}
@@ -183,7 +183,8 @@ def set_selected_model(modelSelection: ModelSelection):
     if (modelSelection.modelName in availableModels):
         selectedModel = modelSelection.modelName
         print("Updated selected model", selectedModel)
-        textfieldsChangedSinceLastGeneration = True
+        for sectionName in textfields:
+            textfieldsToGenerate.append(sectionName)
         return selectedModel
     else:
         print("Attempt to select model that is not available: ", modelSelection.modelName)
@@ -232,7 +233,7 @@ class TextfieldUpdate(BaseModel):
 def set_textfield_content(field_name: str, textfieldUpdate: TextfieldUpdate):
     textfields[field_name] = textfieldUpdate.content
     global textfieldsChangedSinceLastGeneration
-    textfieldsChangedSinceLastGeneration = True
+    textfieldsToGenerate.append(field_name)
     return True
 
 
@@ -415,8 +416,9 @@ def runAIGeneration():
 
     global currentlyGeneratingTextfieldSuggestions
 
-    for sectionName in textfields:
-        if textfields[sectionName] != "":
+    while len(textfieldsToGenerate) > 0:
+        sectionName = textfieldsToGenerate.pop()
+        if sectionName in textfields and textfields[sectionName] != "":
             currentlyGeneratingTextfieldSuggestions = sectionName
             preprompt = f"The user is writing an IMRaD report titled '{documentTitle}, {documentSubtitle}'. This is their section about {sectionName} You should give the user suggestions on improvements for their text. One suggestion per line. You are talking to the user directly, do not address them as user."
             prompt = textfields[sectionName]
@@ -439,7 +441,7 @@ def pollAIShouldGenerate():
     print("Selected model: ", selectedModel)
     if codeChangedSinceLastAnalysis and selectedModel:
         runAICodeAnalysis()
-    if textfieldsChangedSinceLastGeneration and selectedModel:
+    if len(textfieldsToGenerate) > 0 and selectedModel:
         runAIGeneration()
 
 
