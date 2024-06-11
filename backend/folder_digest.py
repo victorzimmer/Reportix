@@ -43,18 +43,18 @@ def find_paths(directory:str) -> list[str]:
     return [element.strip() for element in elements]
 
 
-def model_read_files(path_list:list[str], original_project_structure:str) -> str:
+def model_read_files(path_list:list[str], original_project_structure:str, project_directory:str) -> str:
     # chunking the files and reading these in chunks
     chunk_size = 0 
     chunk = ""
     max_context = 8192
     tokenizer = tiktoken.get_encoding("cl100k_base")
     chunk_responses = []
-    project_directory = "../code_src/"
+    project_directory = project_directory
 
-    if path_list == []:
+    if path_list == ['']:
         # model resp
-        while path_list == []:
+        while path_list == ['']:
             model_response_paths = model_response(original_project_structure, project_system_template)
             path_list = find_paths(model_response_paths["message"]["content"])
     
@@ -85,7 +85,10 @@ def model_read_files(path_list:list[str], original_project_structure:str) -> str
 
     return path_list, chunk_responses
 
-
 if __name__ == "__main__":
-    directory = "../latex_templates/"
-    folder = read_folder(directory=directory)
+    read_folder = read_folder("../client/")
+    model_folder = model_response(read_folder, project_system_template)
+    path_list = find_paths(model_folder)
+    print(path_list)
+    model_read_files = model_read_files(path_list, read_folder, "../client/")
+    print(model_read_files[1])

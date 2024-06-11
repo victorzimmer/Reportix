@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from random import randrange
 import os
 import sys
+from backend.folder_digest import read_folder
 from setInterval import setInterval
 import shutil
 from pathlib import Path
@@ -181,6 +182,7 @@ def set_selected_model(modelSelection: ModelSelection):
     if (modelSelection.modelName in availableModels):
         selectedModel = modelSelection.modelName
         print("Updated selected model", selectedModel)
+        textfieldsChangedSinceLastGeneration = True
         return selectedModel
     else:
         print("Attempt to select model that is not available: ", modelSelection.modelName)
@@ -228,6 +230,7 @@ class TextfieldUpdate(BaseModel):
 @app.post("/textfields/{field_name}", response_class=JSONResponse)
 def set_textfield_content(field_name: str, textfieldUpdate: TextfieldUpdate):
     textfields[field_name] = textfieldUpdate.content
+    global textfieldsChangedSinceLastGeneration
     textfieldsChangedSinceLastGeneration = True
     return True
 
@@ -278,6 +281,7 @@ def upload_file(fileUpload: FileUpload):
 
 @app.get("/code_src/done", response_class=JSONResponse)
 def process_code_src():
+    global codeChangedSinceLastAnalysis
     codeChangedSinceLastAnalysis = True
     print("Done uploading files!")
     return True
@@ -347,33 +351,83 @@ def compile_pdf():
 # AI Generation #
 #################
 # from backend.folder_digest import model_read_files
+# from backend.folder_digest import read_folder, find_paths, model_read_files
+# from backend.model_response import model_response
+# from backend.preprompts import project_system_template
+# from backend.text_helper import reportix_model
+from backend.preprompts import code_system_template, file_id_template
 
 AI_currentSummary = "No summary generated yet."
 
 def runAICodeAnalysis():
-    from backend.folder_digest import read_folder, find_paths, model_read_files
-    from backend.model_response import model_response
-    from backend.preprompts import project_system_template
-
+    print("Analyzing code!")
+    global codeChangedSinceLastAnalysis
     codeChangedSinceLastAnalysis = False
-    project_structure = read_folder("../code_src/")
-    project_compressed = model_response(project_structure, project_system_template)
-    paths_to_files = find_paths(project_compressed)
-    summary = model_read_files(paths_to_files, project_structure)[1]
-    global AI_currentSummary
-    AI_currentSummary = summary
+
+    fileListIter = os.walk(CODE_SRC)
+    fileList = []
+    for filePathObj in fileListIter:
+        for fileName in filePathObj[2]:
+            fileList.append(filePathObj[0] + fileName)
+
+    # fileList = fileList[0:15]
+
+    preprompt = f"This is a list of files in the users project. You are to assist in writing a report with the title {documentTitle}, {documentSubtitle}. Please return a list of files you want to expect, one file per line. Do not format the list."
+    # # prompt = file_id_template+read_folder(CODE_SRC)
+    prompt = "\n".join(fileList)
+    print("Prompt: ", prompt)
+    modelOutput = ollama.generate(model=selectedModel, system=file_id_template, prompt=prompt)
+    print("Output: ", modelOutput["response"])
+
+    filesToInspect = modelOutput["response"].split("\n")[1:-1]
+    print("Files to inspect: ",filesToInspect)
+
+    # for filePath in filesToInspect:
+    #     try:
+    #         fileHandle = open(CODE_SRC+filePath, "r")
+    #         fileSummaryOutput = ollama.generate(model=selectedModel, prompt=code_system_template+fileHandle.read())
+    #         print(fileSummaryOutput["response"])
+    #     except:
+    #         print("File not found, skipping file.", CODE_SRC+filePath)
+
+
+
+    # project_structure = read_folder("../code_src/")
+    # project_compressed = model_response(project_structure, project_system_template)
+    # paths_to_files = find_paths(project_compressed)
+    # summary = model_read_files(paths_to_files, project_structure)[1]
+    # global AI_currentSummary
+    # AI_currentSummary = summary
 
 def runAIGeneration():
-    from backend.text_helper import reportix_model
+    global textfieldsChangedSinceLastGeneration
     textfieldsChangedSinceLastGeneration = False
-    for sectionName in textfields:
-        return_string = reportix_model(section=sectionName, previous_suggestion=str(textfield_suggestions[sectionName]), project_summary=AI_currentSummary, text=textfields[sectionName])
-        print("AI wrote: ", return_string)
-        result_list = return_string.split("*")
-        textfield_suggestions[sectionName] = result_list
+    # for sectionName in textfields:
+    #     return_string = reportix_model(section=sectionName, previous_suggestion=str(textfield_suggestions[sectionName]), project_summary=AI_currentSummary, text=textfields[sectionName])
+    #     print("AI wrote: ", return_string)
+    #     result_list = return_string.split("*")
+    #     textfield_suggestions[sectionName] = result_list
 
+    for sectionName in textfields:
+        if textfields[sectionName] != "":
+            preprompt = f"The user is writing an IMRaD report titled '{documentTitle}, {documentSubtitle}'. This is their section about {sectionName} You should give the user suggestions on improvements for their text. One suggestion per line. You are talking to the user directly, do not address them as user."
+            prompt = textfields[sectionName]
+            if prompt == "":
+                prompt = "The user hasn't written anything yet. Give them some motivation?"
+            modelOutput = ollama.generate(model=selectedModel, system=preprompt, prompt=prompt)
+            print(sectionName, modelOutput["response"])
+            suggestionListRaw = modelOutput["response"].split("\n")
+            suggestionListFiltered = []
+            for suggestion in suggestionListRaw:
+                if len(suggestion) > 1:
+                    suggestionListFiltered.append(suggestion)
+
+            textfield_suggestions[sectionName] = suggestionListFiltered
 
 def pollAIShouldGenerate():
+    print("Polling AI")
+    print("Code changed:", codeChangedSinceLastAnalysis)
+    print("Selected model: ", selectedModel)
     if codeChangedSinceLastAnalysis and selectedModel:
         runAICodeAnalysis()
     if textfieldsChangedSinceLastGeneration and selectedModel:

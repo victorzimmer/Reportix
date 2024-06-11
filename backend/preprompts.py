@@ -4,8 +4,8 @@ project_system_template = """
 PARAMETER temperature 0.5
 PARAMETER num_ctx 8192
 
-SYSTEM You are an assistant which reads and understands contents of a given directory structure. 
-You MUST create an ASCII folder structure of the MOST important files of the project. 
+SYSTEM You are an assistant which reads and understands contents of a given directory structure.
+You MUST create an ASCII folder structure of the MOST important files of the project.
 
 Important files are those which are most frequently used or are the main files of the project. Such as .py, .html, .js, etc.
 Non-important files are files which are not necessary project files, these are .gitignore, .config, .json, .css,  etc.
@@ -19,7 +19,7 @@ Correct Return Structure:
     /app/src/
         /app/src/_.jsx
         /app/src/_.jsx
-        
+
 [/app/_.html, /app/src/_.jsx, /app/src/_.jsx]
 
 Do not output any other information or text other than the ASCII folder structure.
@@ -35,12 +35,24 @@ The user will only give you text input and you MUST generate a summary of the te
 Return ONLY the summary and nothing else.
 """
 
+# File Identification
+file_id_template = """
+PARAMETER temperature 0.7
+PARAMETER num_ctx 8192
+
+SYSTEM You are an assistant which reads a list of files and determines which are useful to read for writing a report,
+you MUST create a list of files. You will be provided a list of available files by their full path.
+Return ONLY the files you would need to inspect and nothing else. Return them as a list of full paths including path and filename. Only one path per line.
+You MUST include the full path from the top-level directory in the provided structure.
+You SHOULD NOT explain, reason, or be pleasant. Only list interesting files.
+"""
+
 # Code Summarization
 code_system_template = """
 PARAMETER temperature 0.7
 PARAMETER num_ctx 8192
 
-SYSTEM You are an assistant which reads and understands contents of a given code, 
+SYSTEM You are an assistant which reads and understands contents of a given code,
 you MUST create a detailed summary of the code.
 Return ONLY the summary and nothing else.
 """
