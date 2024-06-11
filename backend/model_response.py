@@ -1,5 +1,5 @@
 import ollama
-from backend.preprompts import *
+from preprompts import *
 
 
 def model_response(project_input:str, system_template:str) -> str:
