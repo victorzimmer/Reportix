@@ -1,6 +1,8 @@
 # Reportix
 ## Project Description
-AI-powered web application which helps users write reports. The application uses pre-trained models to generate text live as the user types. The texts which the model generates is directional help to the user.
+AI-powered web application which helps users write reports. The application uses pre-trained models to generate text live as the user types. The texts which the model generates is directional assistance for the user. Reportix does not write the report on your behalf, but rather attempts to encourage and assist the process of writing.
+
+Reportix is compatible with multiple AI models, and model management is done thru Ollama.
 
 ## Prerequisites
 LaTeX needs to be installed on the host system.
@@ -58,3 +60,15 @@ $ npm run build
 Run using FastAPI Production Mode
 $ fastapi run main.py
 ```
+
+
+# Credits
+This project would not be possible (or at least require significantly more time) without the fantastic work of the following projects:
+* Ollama
+* ollama-python
+* FastAPI
+* NPM
+* Vue
+* TailwindCSS
+* daisyUI
+* Authors of models openly available thru Ollama
