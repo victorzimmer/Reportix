@@ -69,12 +69,12 @@ const vLoadContent = {
       </div>
     </div>
     <div class="textFieldSuggestions w-2/5 m-3 min-h-32">
-      <div
-        class="grid card bg-base-300 rounded-box place-items-start pl-8 pt-2 pr-2 pb-2 h-full w-full overflow-y-scroll"
-      >
-        <ul class="list-disc">
-          <li v-for="suggestion in internalSuggestionsValue">{{ suggestion }}</li>
-        </ul>
+      <div class="card bg-base-300 rounded-box place-items-start p-3 h-full w-full table">
+        <div class="overflow-y-scroll h-full">
+          <ul class="list-disc">
+            <li v-for="suggestion in internalSuggestionsValue">{{ suggestion }}</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
