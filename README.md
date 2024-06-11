@@ -5,42 +5,42 @@ AI-powered web application which helps users write reports. The application uses
 ## Prerequisites
 LaTeX needs to be installed on the host system.
 
-For macOS SimpleTex[https://formulae.brew.sh/cask/simpletex#default] or MacTex will do.
+For macOS [SimpleTex](https://formulae.brew.sh/cask/simpletex#default) or MacTex will do.
 
 
 ## Installation
 Clone the repository and navigate to the project directory:
-'''console
+´´´console
 $ git clone https://github.com/victorzimmer/Reportix
-'''
+´´´
 
 Install necessary packages using pip and npm:
-'''console
+´´´console
 $ pip install -r requirements.txt
 $ npm install
-'''
+´´´
 
 ## Usage
 
 ### Development
 NPM Development Setup (Frontend)
-'''console
+´´´console
 $ npm run watch
-'''
+´´´
 
 Run using FastAPI Development Mode
-'''console
+´´´console
 $ fastapi dev main.py
-'''
+´´´
 
 
 ### Production
-'''console
+´´´console
 NPM Production Setup (Frontend)
 $ npm run build
-'''
+´´´
 
-'''console
+´´´console
 Run using FastAPI Production Mode
 $ fastapi run main.py
-'''
+´´´
