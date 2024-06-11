@@ -20,6 +20,20 @@ $ pip install -r requirements.txt
 $ npm install
 ```
 
+## Running Ollama
+If Ollama is not already installed it can be found [here](https://ollama.com)
+Ollama needs to be running for Reportix to work.
+
+## Pulling models
+Models need to be available in Ollama and we reccommend pulling them before using Reportix.
+```console
+$ ollama pull modelName
+```
+
+We reccommend using llama3, but llama2, phi3, phi, and llava have also been found to work well.
+Feel free to try more models from the Ollama [list of available models](https://ollama.com/library).
+
+
 ## Usage
 
 ### Development
