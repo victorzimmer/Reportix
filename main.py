@@ -407,19 +407,20 @@ def runAIGeneration():
     #     textfield_suggestions[sectionName] = result_list
 
     for sectionName in textfields:
-        preprompt = "The user is writing an IMRaD report. This is their section about "+sectionName+" You should give the user suggestions on improvements for their text. One suggestion per line."
-        prompt = textfields[sectionName]
-        if prompt == "":
-            prompt = "The user hasn't written anything yet. Give them some motivation?"
-        modelOutput = ollama.generate(model=selectedModel, system=preprompt, prompt=prompt)
-        print(sectionName, modelOutput["response"])
-        suggestionListRaw = modelOutput["response"].split("\n")
-        suggestionListFiltered = []
-        for suggestion in suggestionListRaw:
-            if len(suggestion) > 1:
-                suggestionListFiltered.append(suggestion)
+        if textfields[sectionName] != "":
+            preprompt = f"The user is writing an IMRaD report titled '{documentTitle}, {documentSubtitle}'. This is their section about {sectionName} You should give the user suggestions on improvements for their text. One suggestion per line. You are talking to the user directly, do not address them as user."
+            prompt = textfields[sectionName]
+            if prompt == "":
+                prompt = "The user hasn't written anything yet. Give them some motivation?"
+            modelOutput = ollama.generate(model=selectedModel, system=preprompt, prompt=prompt)
+            print(sectionName, modelOutput["response"])
+            suggestionListRaw = modelOutput["response"].split("\n")
+            suggestionListFiltered = []
+            for suggestion in suggestionListRaw:
+                if len(suggestion) > 1:
+                    suggestionListFiltered.append(suggestion)
 
-        textfield_suggestions[sectionName] = suggestionListFiltered
+            textfield_suggestions[sectionName] = suggestionListFiltered
 
 def pollAIShouldGenerate():
     print("Polling AI")
