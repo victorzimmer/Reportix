@@ -40,6 +40,7 @@ documentDate = ""
 textfields = {"introduction": "", "methods": "", "results": "", "discussion": "", "conclusion": ""}
 textfieldsChangedSinceLastGeneration = False
 codeChangedSinceLastAnalysis = False
+currentlyGeneratingTextfieldSuggestions = ""
 textfield_suggestions = {"introduction": ["No suggestions yet"], "methods":["No suggestions yet"], "results": ["No suggestions yet"], "discussion": ["No suggestions yet"], "conclusion": ["No suggestions yet"]}
 
 
@@ -239,6 +240,10 @@ def set_textfield_content(field_name: str, textfieldUpdate: TextfieldUpdate):
 #########################
 # Textfield suggestions #
 #########################
+@app.get("/currently_generating_textfield_suggestions/", response_class=JSONResponse)
+def get_currently_generating_textfield_suggestions():
+    return currentlyGeneratingTextfieldSuggestions
+
 @app.get("/textfield_suggestions/{field_name}", response_class=JSONResponse)
 def get_textfield_content(field_name: str):
     if textfield_suggestions[field_name]:
@@ -408,8 +413,11 @@ def runAIGeneration():
     #     result_list = return_string.split("*")
     #     textfield_suggestions[sectionName] = result_list
 
+    global currentlyGeneratingTextfieldSuggestions
+
     for sectionName in textfields:
         if textfields[sectionName] != "":
+            currentlyGeneratingTextfieldSuggestions = sectionName
             preprompt = f"The user is writing an IMRaD report titled '{documentTitle}, {documentSubtitle}'. This is their section about {sectionName} You should give the user suggestions on improvements for their text. One suggestion per line. You are talking to the user directly, do not address them as user."
             prompt = textfields[sectionName]
             if prompt == "":
@@ -423,6 +431,7 @@ def runAIGeneration():
                     suggestionListFiltered.append(suggestion)
 
             textfield_suggestions[sectionName] = suggestionListFiltered
+            currentlyGeneratingTextfieldSuggestions = ""
 
 def pollAIShouldGenerate():
     print("Polling AI")

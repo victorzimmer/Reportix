@@ -5,6 +5,7 @@ const props = defineProps<{
   textFieldName: string
   endpoint?: string
   endpointSuggestions?: string
+  endpointGenerating?: string
   propertyName?: string
 }>()
 
@@ -50,6 +51,22 @@ async function loadSuggestions() {
   }
 }
 
+const isGenerating = ref(false)
+
+async function checkIfGenerating() {
+  if (props.endpointGenerating) {
+    const response = await fetch(props.endpointGenerating)
+    var loadedContent = await response.json()
+    console.log('Checked: ' + loadedContent)
+    let prevValue = isGenerating.value
+    isGenerating.value = loadedContent == props.textFieldName.toLowerCase()
+
+    if (prevValue != isGenerating.value) {
+      loadSuggestions()
+    }
+  }
+}
+
 /*
   Load content
 */
@@ -58,6 +75,7 @@ const vLoadContent = {
     loadContent()
     loadSuggestions()
     setInterval(loadSuggestions, 5000)
+    setInterval(checkIfGenerating, 500)
   }
 }
 </script>
@@ -77,7 +95,8 @@ const vLoadContent = {
     </div>
     <div class="textFieldSuggestions w-2/5 m-3 min-h-32">
       <div class="card bg-base-300 rounded-box place-items-start p-3 h-full w-full table">
-        <div class="overflow-y-scroll h-full">
+        <span v-if="isGenerating" class="loading loading-spinner text-secondary"></span>
+        <div v-if="!isGenerating" class="overflow-y-scroll h-full">
           <ul class="list-disc">
             <li v-for="suggestion in internalSuggestionsValue">{{ suggestion }}</li>
           </ul>
