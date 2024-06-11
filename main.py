@@ -417,7 +417,7 @@ def runAIGeneration():
     global currentlyGeneratingTextfieldSuggestions
 
     while len(textfieldsToGenerate) > 0:
-        sectionName = textfieldsToGenerate.pop()
+        sectionName = textfieldsToGenerate.pop(0)
         if sectionName in textfields and textfields[sectionName] != "":
             currentlyGeneratingTextfieldSuggestions = sectionName
             preprompt = f"The user is writing an IMRaD report titled '{documentTitle}, {documentSubtitle}'. This is their section about {sectionName} You should give the user suggestions on improvements for their text. One suggestion per line. You are talking to the user directly, do not address them as user."
