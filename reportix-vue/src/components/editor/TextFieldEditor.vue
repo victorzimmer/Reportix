@@ -30,7 +30,14 @@ async function updateContent() {
   }
 }
 
-watch(internalContentValue, updateContent)
+var contentTimer
+
+async function resetUpdateContentTimer() {
+  clearTimeout(contentTimer)
+  contentTimer = setTimeout(updateContent, 2000)
+}
+
+watch(internalContentValue, resetUpdateContentTimer)
 
 const internalSuggestionsValue = ref(['Suggestions not loaded'])
 
