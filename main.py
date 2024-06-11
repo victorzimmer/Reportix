@@ -357,11 +357,11 @@ def compile_pdf():
 # AI Generation #
 #################
 # from backend.folder_digest import model_read_files
-# from backend.folder_digest import read_folder, find_paths, model_read_files
 # from backend.model_response import model_response
 # from backend.preprompts import project_system_template
 # from backend.text_helper import reportix_model
-from backend.preprompts import code_system_template, file_id_template
+from backend.folder_digest import read_folder, find_paths, model_read_files, model_response
+from backend.preprompts import code_system_template, file_id_template, project_system_template
 
 AI_currentSummary = "No summary generated yet."
 
@@ -370,49 +370,19 @@ def runAICodeAnalysis():
     global codeChangedSinceLastAnalysis
     codeChangedSinceLastAnalysis = False
 
-    fileListIter = os.walk(CODE_SRC)
-    fileList = []
-    for filePathObj in fileListIter:
-        for fileName in filePathObj[2]:
-            fileList.append(filePathObj[0] + fileName)
+    read_folder_out = read_folder(CODE_SRC)
+    model_folder_out = model_response(read_folder_out, project_system_template)
+    path_list = find_paths(model_folder_out)
+    # print(path_list)
+    model_read_files_out = model_read_files(path_list, read_folder_out, CODE_SRC)
 
-    # fileList = fileList[0:15]
-
-    preprompt = f"This is a list of files in the users project. You are to assist in writing a report with the title {documentTitle}, {documentSubtitle}. Please return a list of files you want to expect, one file per line. Do not format the list."
-    # # prompt = file_id_template+read_folder(CODE_SRC)
-    prompt = "\n".join(fileList)
-    print("Prompt: ", prompt)
-    modelOutput = ollama.generate(model=selectedModel, system=file_id_template, prompt=prompt)
-    print("Output: ", modelOutput["response"])
-
-    filesToInspect = modelOutput["response"].split("\n")[1:-1]
-    print("Files to inspect: ",filesToInspect)
-
-    # for filePath in filesToInspect:
-    #     try:
-    #         fileHandle = open(CODE_SRC+filePath, "r")
-    #         fileSummaryOutput = ollama.generate(model=selectedModel, prompt=code_system_template+fileHandle.read())
-    #         print(fileSummaryOutput["response"])
-    #     except:
-    #         print("File not found, skipping file.", CODE_SRC+filePath)
-
-
-
-    # project_structure = read_folder("../code_src/")
-    # project_compressed = model_response(project_structure, project_system_template)
-    # paths_to_files = find_paths(project_compressed)
-    # summary = model_read_files(paths_to_files, project_structure)[1]
-    # global AI_currentSummary
-    # AI_currentSummary = summary
+    global AI_currentSummary
+    AI_currentSummary = model_read_files_out[1]
 
 def runAIGeneration():
     global textfieldsChangedSinceLastGeneration
     textfieldsChangedSinceLastGeneration = False
-    # for sectionName in textfields:
-    #     return_string = reportix_model(section=sectionName, previous_suggestion=str(textfield_suggestions[sectionName]), project_summary=AI_currentSummary, text=textfields[sectionName])
-    #     print("AI wrote: ", return_string)
-    #     result_list = return_string.split("*")
-    #     textfield_suggestions[sectionName] = result_list
+
 
     global currentlyGeneratingTextfieldSuggestions
 
@@ -421,6 +391,7 @@ def runAIGeneration():
         if sectionName in textfields and textfields[sectionName] != "":
             currentlyGeneratingTextfieldSuggestions = sectionName
             preprompt = f"The user is writing an IMRaD report titled '{documentTitle}, {documentSubtitle}'. This is their section about {sectionName} You should give the user suggestions on improvements for their text. One suggestion per line. You are talking to the user directly, do not address them as user."
+            preprompt += f"Your summary of the code was: {AI_currentSummary}"
             prompt = textfields[sectionName]
             if prompt == "":
                 prompt = "The user hasn't written anything yet. Give them some motivation?"
