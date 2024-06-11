@@ -85,3 +85,7 @@ def model_read_files(path_list:list[str], original_project_structure:str) -> str
 
     return path_list, chunk_responses
 
+
+if __name__ == "__main__":
+    directory = "../latex_templates/"
+    folder = read_folder(directory=directory)
